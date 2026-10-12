@@ -191,6 +191,18 @@
   .finale { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 14svh 20px 12svh; }
   .finale .photo { width: min(70vw, 260px); aspect-ratio: 4 / 5; border-radius: 130px 130px 26px 26px; overflow: hidden; position: relative; background: var(--w2); border: 8px solid var(--w0); box-shadow: var(--shadow); margin-bottom: 36px; }
   .finale h2 { font-size: clamp(2.4rem, 9vw, 3.8rem); }
+
+  /* ---------- письмо ---------- */
+  .letter { position: relative; width: min(100%, 560px); margin: 26px auto 0; padding: 40px 34px 34px; text-align: left;
+    background: var(--w0); border: 1.5px solid var(--w3); border-radius: 26px; box-shadow: var(--shadow); }
+  .letter::before { content: ""; position: absolute; top: -13px; left: 50%; width: 84px; height: 24px; margin-left: -42px;
+    background: rgba(233, 230, 225, .92); border: 1px solid var(--w4); border-radius: 3px; transform: rotate(-3deg); }
+  .letter p { margin: 0 0 1.1em; font-family: var(--serif); font-style: italic; font-weight: 600; font-size: clamp(1.25rem, 4.4vw, 1.5rem); line-height: 1.6;
+    opacity: 0; transform: translateY(14px); transition: opacity .8s ease, transform .9s cubic-bezier(.2, .9, .3, 1.1); }
+  .letter.in p { opacity: 1; transform: none; }
+  .letter .letter-hi { font-size: clamp(1.7rem, 6vw, 2.1rem); font-weight: 700; }
+  .letter .letter-sign { margin: 1.5em 0 0; text-align: right; color: var(--ink-soft); }
+  @media (max-width: 480px) { .letter { padding: 34px 22px 26px; } }
   .btn { margin-top: 28px; font: 800 1.05rem var(--sans); color: var(--w0); background: var(--ink); border: 0; border-radius: 999px; padding: 18px 38px; cursor: pointer; transition: transform .2s ease; animation: beat 2.2s ease-in-out infinite; }
   .btn:hover { transform: scale(1.05); }
   .btn:active { transform: scale(.96); }
@@ -335,10 +347,20 @@
   <section class="finale">
     <div class="photo rv" data-slot="11" data-alt="Фото"></div>
     <h2 class="rv">И ещё кое-что</h2>
+
+    <!-- ТВОЁ ПИСЬМО: замени текст внутри <p>. Каждый <p> это отдельный абзац, они появляются по очереди. -->
+    <article class="letter rv" id="letter">
+      <p class="letter-hi">Дорогая моя Полина</p>
+      <p>Хочется сказать тебе несколько слов, и лучше всего это получается письмом.</p>
+      <p>Спасибо, что ты рядом. С тобой весело, спокойно, уйютно и комфортно и всегда можно быть собой, а также ты самый добрый человек, которого я только знаю. Из всех людей ты сияешь ярче всех. Я никогда не устану перечислять все хорошее и лучшее о тебе</p>
+      <p>Я не думал, что встречу человека, с которым мне так будет хорошо рядом. Спасибо тебе</p>
+      <p class="letter-sign">С любовью, Глеб<br><span id="letterFrom"></span></p>
+    </article>
+
     <button class="btn" id="open" type="button">Открыть сюрприз</button>
     <div class="surprise" id="surprise" aria-live="polite">
       <span class="part">Ты лучшая.</span>
-      <span class="part">Обнимаю тебя крепко! ставлю лайк а теперь мучайся и смотри клип</span>
+      <span class="part">Обнимаю тебя крепко! ставлю лайк а теперь мучайся и смотри клип(звука нету)</span>
       <span class="part sign" id="sign"></span>
     </div>
   </section>
@@ -400,7 +422,14 @@
   });
   title.setAttribute("aria-label", HEADLINE);
   document.title = "Открытка для тебя";
-  if (FROM) document.getElementById("sign").textContent = "— " + FROM;
+  if (FROM) {
+    document.getElementById("sign").textContent = "— " + FROM;
+    document.getElementById("letterFrom").textContent = FROM;
+  }
+  /* абзацы письма появляются по очереди */
+  Array.prototype.forEach.call(document.querySelectorAll("#letter p"), function (el, i) {
+    el.style.transitionDelay = (0.25 + i * 0.4).toFixed(2) + "s";
+  });
 
   /* 10 блоков: сторона, размер, наклон и сдвиг фото у каждого свои */
   var BLOCKS = [
