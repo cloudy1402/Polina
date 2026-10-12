@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Открытка для тебя</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --w0: #ffffff;
+    --w1: #faf9f7;
+    --w2: #f3f1ee;
+    --w3: #e9e6e1;
+    --w4: #d8d4cd;
+    --ink: #1f1b24;
+    --ink-soft: #625d6b;
+    --shadow: 0 14px 34px rgba(31, 27, 36, .09);
+    --serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    --sans: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color-scheme: light;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  html, body { margin: 0; }
+  body { background: var(--w1); color: var(--ink); font-family: var(--sans); font-size: 17px; line-height: 1.65; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 700; line-height: 1.05; margin: 0; letter-spacing: -.01em; }
+
+  /* ---------- фон: тонкие белые круги ---------- */
+  .bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .ring { position: absolute; border-radius: 50%; border: 1.5px solid var(--w3); background: var(--w0); opacity: .7; }
+  .ring.a { width: 60vmax; height: 60vmax; top: -24vmax; left: -22vmax; animation: d1 30s ease-in-out infinite alternate; }
+  .ring.b { width: 44vmax; height: 44vmax; top: 34vh; right: -20vmax; animation: d2 36s ease-in-out infinite alternate; }
+  .ring.c { width: 36vmax; height: 36vmax; bottom: -16vmax; left: 8vw; animation: d3 33s ease-in-out infinite alternate; }
+  @keyframes d1 { to { transform: translate(10vmax, 12vmax); } }
+  @keyframes d2 { to { transform: translate(-12vmax, -8vmax); } }
+  @keyframes d3 { to { transform: translate(8vmax, -12vmax); } }
+
+  .progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 20; transform-origin: 0 50%; transform: scaleX(0); background: var(--ink); }
+  main { position: relative; z-index: 1; overflow-x: clip; }   /* блоки, которые влетают сбоку, не расширяют страницу */
+  .col { width: 100%; max-width: 960px; margin-inline: auto; padding-inline: 20px; }
+
+  /* ---------- hero ---------- */
+  .hero { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10svh 20px 14svh; position: relative; }
+  .portrait { position: relative; width: clamp(170px, 46vw, 230px); aspect-ratio: 1; margin-bottom: 34px; opacity: 0; transform: scale(.7); animation: pop-in 1s .1s cubic-bezier(.2,.9,.3,1.25) forwards; }
+  .portrait::before { content: ""; position: absolute; inset: -16px; border-radius: 50%; border: 2px dashed var(--w4); animation: spin 40s linear infinite; }
+  .portrait .frame { position: absolute; inset: 0; border-radius: 50%; border: 8px solid var(--w0); box-shadow: var(--shadow); }
+  .spark { position: absolute; width: 24px; height: 24px; color: var(--ink); animation: bob 3.4s ease-in-out infinite; }
+  .spark.s1 { top: -14px; right: -6px; }
+  .spark.s2 { bottom: 6px; left: -24px; width: 18px; height: 18px; color: var(--ink-soft); animation-delay: -1.2s; }
+  .spark.s3 { bottom: -20px; right: 14px; width: 14px; height: 14px; color: var(--ink-soft); animation-delay: -2.2s; }
+  @keyframes bob { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-10px) rotate(25deg); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pop-in { to { opacity: 1; transform: none; } }
+  .hero h1 { font-size: clamp(2.5rem, 9.5vw, 5rem); font-style: italic; max-width: 14em; text-wrap: balance; }
+  .hero h1 .hw { display: inline-block; white-space: nowrap; }
+  .hero h1 .hw span { display: inline-block; opacity: 0; transform: translateY(36px); animation: letter .8s cubic-bezier(.2,.9,.3,1.2) forwards; }
+  @keyframes letter { to { opacity: 1; transform: none; } }
+  .hero p { margin: 18px 0 0; color: var(--ink-soft); font-size: 1.1rem; font-weight: 500; opacity: 0; animation: fade 1s 2.4s forwards; }
+  @keyframes fade { to { opacity: 1; } }
+  .hint { position: absolute; bottom: calc(4svh + env(safe-area-inset-bottom, 0px)); left: 50%; margin-left: -14px; width: 28px; height: 46px; border: 2px solid var(--ink-soft); border-radius: 16px; opacity: 0; animation: fade 1s 3s forwards; }
+  .hint::after { content: ""; position: absolute; left: 50%; top: 8px; width: 6px; height: 10px; margin-left: -3px; border-radius: 3px; background: var(--ink-soft); animation: wheel 1.6s ease-in-out infinite; }
+  @keyframes wheel { 0% { transform: translateY(0); opacity: 1; } 70% { transform: translateY(14px); opacity: 0; } 100% { opacity: 0; } }
+
+  /* ---------- слова проявляются ---------- */
+  .scrub { height: 220svh; position: relative; }
+  .scrub .stick { position: sticky; top: 0; height: 100svh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .scrub p { font-family: var(--serif); font-weight: 600; font-size: clamp(2rem, 8vw, 3.4rem); line-height: 1.2; margin: 0; max-width: 640px; text-align: center; }
+  .scrub .w { opacity: .16; transition: opacity .5s ease; }
+  .scrub .w.on { opacity: 1; }
+
+  /* ---------- бегущая лента слов ---------- */
+  .marquee { overflow: hidden; padding: 22px 0; margin: 4svh 0 10svh; background: var(--w0); border-block: 1.5px solid var(--w3); }
+  .marquee .track { display: flex; width: max-content; will-change: transform; }
+  .marquee span { font-family: var(--serif); font-style: italic; font-weight: 600; font-size: clamp(1.6rem, 6vw, 2.4rem); padding-right: 54px; position: relative; white-space: nowrap; }
+  .marquee span::after { content: ""; position: absolute; right: 22px; top: 50%; width: 9px; height: 9px; margin-top: -4.5px; border-radius: 50%; background: var(--w4); }
+
+  .heading { text-align: center; margin-bottom: 30px; }
+  .heading h2 { font-size: clamp(2.4rem, 9vw, 3.8rem); }
+  .heading p { margin: 12px auto 0; max-width: 460px; color: var(--ink-soft); }
+
+  /* ---------- 10 блоков с фото слева и справа ---------- */
+  .block { display: flex; align-items: var(--ai, center); gap: clamp(20px, 5vw, 56px); margin: clamp(56px, 10vw, 110px) 0; }
+  .block.r { flex-direction: row-reverse; }
+  .block.l { --x0: -70px; }
+  .block.r { --x0: 70px; }
+  .pic { margin: 0; flex: 0 0 var(--w); max-width: var(--w); background: var(--w0); padding: 10px; border-radius: 14px; box-shadow: var(--shadow); position: relative;
+    opacity: 0; transform: translate(0, var(--dy)) rotate(var(--rot)); transition: transform .45s cubic-bezier(.2, .9, .3, 1.2); }
+  .block.in .pic { opacity: 1; animation: var(--enter, e-fly) 1.15s cubic-bezier(.2, .9, .3, 1.15) backwards; }
+  .block.in .pic:hover { transform: translate(0, var(--dy)) rotate(0deg) scale(1.03); }
+
+  /* кусочек скотча, которым фото «приклеивается» на место */
+  .pic::before { content: ""; position: absolute; top: -13px; left: 50%; width: 84px; height: 24px; margin-left: -42px; z-index: 3;
+    background: rgba(233, 230, 225, .92); border: 1px solid var(--w4); border-radius: 3px; transform: rotate(-3deg); }
+  .block.in .pic::before { animation: tape .5s 1s cubic-bezier(.2, 1.5, .4, 1) backwards; }
+  @keyframes tape { from { opacity: 0; transform: translateY(-16px) rotate(-22deg) scale(.4); } }
+
+  /* четыре способа появления: влетает сбоку, падает сверху, раскручивается, переворачивается */
+  @keyframes e-fly  { from { opacity: 0; transform: translate(calc(var(--x0) * 2.4), 50px) rotate(calc(var(--rot) * -4)) scale(.8); } }
+  @keyframes e-zoom { from { opacity: 0; transform: translate(0, var(--dy)) rotate(calc(var(--rot) * -6)) scale(.15); } }
+  @keyframes e-flip {
+    from { opacity: 0; transform: perspective(900px) translate(0, var(--dy)) rotateY(88deg) rotate(var(--rot)); }
+    to   { opacity: 1; transform: perspective(900px) translate(0, var(--dy)) rotateY(0deg) rotate(var(--rot)); }
+  }
+  @keyframes e-drop {
+    0%   { opacity: 0; transform: translate(0, -220px) rotate(calc(var(--rot) * -5)) scale(1.08); animation-timing-function: cubic-bezier(.5, 0, .9, .6); }
+    20%  { opacity: 1; }
+    55%  { opacity: 1; transform: translate(0, calc(var(--dy) + 16px)) rotate(var(--rot)) scale(1); animation-timing-function: ease-out; }
+    75%  { transform: translate(0, calc(var(--dy) - 9px)) rotate(var(--rot)); animation-timing-function: ease-in-out; }
+    100% { opacity: 1; transform: translate(0, var(--dy)) rotate(var(--rot)); }
+  }
+
+
+  .frame { position: relative; overflow: hidden; border-radius: 8px; background: var(--w2); }
+  .pic .frame { aspect-ratio: var(--ar); }
+  .frame img { position: absolute; left: 0; top: -6%; width: 100%; height: 112%; object-fit: cover; transform: translate3d(0, var(--py, 0px), 0); }
+  .portrait .frame img, .finale .photo img { top: 0; height: 100%; transform: none; }
+  .ph { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--ink-soft); font-weight: 700; font-size: .9rem; text-align: center; padding: 8px; }
+  .ph svg { width: 40px; height: 40px; }
+
+  .txt { flex: 1; background: var(--w0); border: 1.5px solid var(--w3); border-radius: 26px; padding: 30px; position: relative;
+    opacity: 0; transform: translateY(26px); transition: opacity .8s .15s ease, transform .9s .15s cubic-bezier(.2,.9,.3,1.1); }
+  .block:nth-of-type(even) .txt { background: var(--w2); }
+  .block.in .txt { opacity: 1; transform: none; }
+  .txt .n { display: block; font-family: var(--serif); font-style: italic; font-weight: 700; font-size: 4.2rem; line-height: .9; color: var(--w4); margin-bottom: 6px; }
+  .txt h3 { font-size: 2.1rem; margin-bottom: 8px; }
+  .txt p { margin: 0; font-weight: 500; color: var(--ink-soft); }
+
+  .rv { opacity: 0; transform: translateY(34px); transition: opacity .8s ease, transform .9s cubic-bezier(.2,.9,.3,1.1); }
+  .rv.in { opacity: 1; transform: none; }
+
+  @media (max-width: 720px) {
+    .block, .block.r { flex-direction: column; align-items: flex-start; gap: 0; }
+    .block.r { align-items: flex-end; }
+    .pic { flex: none; width: var(--wm); max-width: none; }
+    .txt { width: 90%; margin-top: -26px; z-index: 2; padding: 24px; }
+    .block.l .txt { align-self: flex-end; }
+    .block.r .txt { align-self: flex-start; }
+    .txt .n { font-size: 3.4rem; }
+    .txt h3 { font-size: 1.8rem; }
+  }
+
+  /* ---------- лента фотографий: едет вбок при прокрутке ---------- */
+  .ribbon { position: relative; margin-top: 6svh; }
+  .ribbon .stick { position: sticky; top: 0; height: 100svh; overflow: hidden; display: flex; flex-direction: column; justify-content: center; gap: 3svh; }
+  .ribbon h2 { text-align: center; font-size: clamp(2.2rem, 8vw, 3.4rem); padding-inline: 20px; }
+  .rtrack { position: relative; display: flex; align-items: center; gap: 28px; width: max-content; padding: 0 8vw; will-change: transform; }
+  .rtrack::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 62%; transform: translateY(-50%); background: var(--w0); border-block: 1.5px solid var(--w3); z-index: -1; }
+  .item { margin: 0; background: var(--w0); padding: 10px; border-radius: 14px; box-shadow: var(--shadow); transform: translateY(var(--dy)) rotate(var(--rot)); flex: none; opacity: 0; }
+  .item .frame { width: calc(clamp(150px, 20vw, 250px) * var(--k, 1)); aspect-ratio: var(--ar); }
+  .item .frame img { top: 0; height: 100%; transform: none; }
+  .item.in { opacity: 1; animation: e-item .95s cubic-bezier(.2, 1.3, .4, 1) backwards; }
+  @keyframes e-item { from { opacity: 0; transform: translateY(calc(var(--dy) + 90px)) rotate(calc(var(--rot) * -3)) scale(.7); } }
+
+  /* ---------- кнопка «Обнять» ---------- */
+  .hug { min-height: 90svh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 12svh 20px; }
+  .hug h2 { font-size: clamp(2.4rem, 9vw, 3.8rem); }
+  .hug-sub { margin: 10px 0 34px; color: var(--ink-soft); font-weight: 500; }
+  .hug-stage { position: relative; width: 200px; height: 200px; margin: 0 auto; }
+  .hug-ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+  .hug-ring circle { fill: none; stroke-width: 6; }
+  .hug-ring .trk { stroke: var(--w3); }
+  .hug-ring .bar { stroke: var(--ink); stroke-linecap: round; stroke-dasharray: 578; stroke-dashoffset: 578; transition: stroke-dashoffset .5s cubic-bezier(.2, .9, .3, 1.1); }
+  .hug-btn { position: absolute; inset: 22px; border: 0; border-radius: 50%; background: var(--ink); color: var(--w0); cursor: pointer; z-index: 2;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font: 800 1.05rem var(--sans);
+    touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+  .hug-btn::after { content: ""; position: absolute; inset: 0; border-radius: 50%; box-shadow: 0 0 0 0 rgba(31, 27, 36, .28); animation: beat 2.2s ease-in-out infinite; pointer-events: none; }
+  .hug-btn svg { width: 46px; height: 46px; }
+  .hug-btn.squish { animation: squish .38s cubic-bezier(.2, 1.5, .4, 1); }
+  @keyframes squish { 0% { transform: scale(1); } 30% { transform: scale(.88); } 100% { transform: scale(1); } }
+  .hug-btn:focus-visible { outline: 3px solid var(--ink-soft); outline-offset: 5px; }
+  .hearts { position: absolute; left: 50%; top: 50%; width: 0; height: 0; z-index: 3; pointer-events: none; }
+  .heart { position: absolute; left: -14px; top: -14px; width: 28px; height: 28px; color: var(--c); opacity: 0; animation: hrise var(--dur, 1.4s) ease-out forwards; }
+  .heart svg { display: block; width: 100%; height: 100%; }
+  @keyframes hrise {
+    0% { opacity: 0; transform: translate(0, 0) scale(.3) rotate(0deg); }
+    15% { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(var(--s)) rotate(var(--r)); }
+  }
+  .hug-count { margin-top: 24px; font-weight: 700; color: var(--ink-soft); }
+  .hug-msg { display: none; margin-top: 26px; max-width: 480px; opacity: 0; transform: translateY(24px) scale(.92); }
+  .hug-msg.show { display: block; animation: rise .9s cubic-bezier(.2, .9, .3, 1.3) forwards; }
+  .hug-msg h3 { font-size: clamp(1.9rem, 7vw, 2.6rem); font-style: italic; }
+  .hug-msg p { margin: 8px 0 0; color: var(--ink-soft); font-weight: 500; }
+
+  /* ---------- финал ---------- */
+  .finale { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 14svh 20px 12svh; }
+  .finale .photo { width: min(70vw, 260px); aspect-ratio: 4 / 5; border-radius: 130px 130px 26px 26px; overflow: hidden; position: relative; background: var(--w2); border: 8px solid var(--w0); box-shadow: var(--shadow); margin-bottom: 36px; }
+  .finale h2 { font-size: clamp(2.4rem, 9vw, 3.8rem); }
+  .btn { margin-top: 28px; font: 800 1.05rem var(--sans); color: var(--w0); background: var(--ink); border: 0; border-radius: 999px; padding: 18px 38px; cursor: pointer; transition: transform .2s ease; animation: beat 2.2s ease-in-out infinite; }
+  .btn:hover { transform: scale(1.05); }
+  .btn:active { transform: scale(.96); }
+  .btn:focus-visible { outline: 3px solid var(--ink-soft); outline-offset: 4px; }
+  @keyframes beat { 0%, 100% { box-shadow: 0 0 0 0 rgba(31, 27, 36, .28); } 50% { box-shadow: 0 0 0 14px rgba(31, 27, 36, 0); } }
+  .surprise { margin-top: 36px; font-family: var(--serif); font-style: italic; font-weight: 700; font-size: clamp(2.2rem, 9vw, 3.6rem); line-height: 1.15; }
+  .surprise .part { display: block; opacity: 0; transform: translateY(24px) scale(.92); }
+  .surprise.show .part { animation: rise .9s cubic-bezier(.2,.9,.3,1.3) forwards; }
+  .surprise.show .part:nth-child(2) { animation-delay: .5s; }
+  .surprise.show .part:nth-child(3) { animation-delay: 1s; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  .sign { font-family: var(--sans); font-style: normal; font-weight: 700; font-size: 1.1rem; color: var(--ink-soft); margin-top: 8px; }
+  #confetti { position: fixed; inset: 0; z-index: 50; pointer-events: none; width: 100%; height: 100%; }
+
+  /* ---------- папарацци в ленте фото ---------- */
+  .papa { position: fixed; bottom: 0; width: clamp(100px, 18vw, 150px); aspect-ratio: 130 / 210; z-index: 19; pointer-events: none;
+    transform: translateY(108%); transition: transform .5s cubic-bezier(.2, 1.35, .4, 1); }
+  .papa.in { transform: none; }
+  .papa .mir, .papa .fig { position: relative; width: 100%; height: 100%; }
+  .papa.flip .mir { transform: scaleX(-1); }
+  .papa.in .fig { animation: wob .4s ease-in-out infinite alternate; }
+  @keyframes wob { from { transform: rotate(-1.5deg); } to { transform: rotate(1.5deg) translateY(-3px); } }
+  .papa .person { display: block; width: 100%; height: 100%; }
+  .burst { position: absolute; left: 80%; top: 38%; width: 96px; height: 96px; margin: -48px 0 0 -48px; opacity: 0; filter: drop-shadow(0 0 10px rgba(255, 255, 255, .95)); }
+  .burst polygon { fill: #fff; stroke: var(--w4); stroke-width: 1.5; }
+  .burst.go { animation: burst .3s ease-out; }
+  @keyframes burst { 0% { opacity: 1; transform: scale(.2) rotate(0); } 35% { opacity: 1; transform: scale(1.4) rotate(12deg); } 100% { opacity: 0; transform: scale(2) rotate(20deg); } }
+  .flash { position: fixed; inset: 0; z-index: 22; background: #fff; opacity: 0; pointer-events: none; }
+  .flash.go { animation: flash .24s ease-out; }
+  @keyframes flash { 0% { opacity: .8; } 100% { opacity: 0; } }
+
+  /* ---------- фото, которые выскакивают по ходу прокрутки ---------- */
+  .pop { position: fixed; top: var(--top); width: var(--w); padding: 10px; background: var(--w0); border-radius: 14px; box-shadow: 0 22px 50px rgba(31, 27, 36, .22);
+    z-index: 18; pointer-events: none; opacity: 0;
+    transform: translate(var(--x0), 0) scale(.15) rotate(calc(var(--rot) * -3));
+    transition: opacity .3s ease, transform .35s ease-in; }
+  .pop.l { left: calc(10px + env(safe-area-inset-left, 0px)); --x0: -60px; }
+  .pop.r { right: calc(10px + env(safe-area-inset-right, 0px)); --x0: 60px; }
+  .pop.show { opacity: 1; transform: rotate(var(--rot)); transition: opacity .2s ease, transform .75s cubic-bezier(.2, 1.6, .4, 1); }
+  .pop .frame { aspect-ratio: var(--ar); }
+  .pop .frame img { top: 0; height: 100%; transform: none; }
+
+  /* ---------- регулятор громкости (без плеера) ---------- */
+  .vol { position: fixed; right: calc(14px + env(safe-area-inset-right, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 25;
+    display: flex; align-items: center; gap: 10px; padding: 7px 16px 7px 7px; background: var(--w0); border: 1.5px solid var(--w3); border-radius: 999px; box-shadow: var(--shadow);
+    opacity: 0; transform: translateY(12px); transition: opacity .6s ease, transform .6s ease; }
+  .vol.show { opacity: 1; transform: none; }
+  .vol button { width: 36px; height: 36px; flex: none; border: 0; border-radius: 50%; background: var(--w2); color: var(--ink); cursor: pointer; display: grid; place-items: center; padding: 0; }
+  .vol button:focus-visible, .vol input:focus-visible { outline: 3px solid var(--ink-soft); outline-offset: 3px; }
+  .vol button svg { width: 20px; height: 20px; }
+  .vol .wave { transition: opacity .2s ease; }
+  .vol.muted .wave { opacity: 0; }
+  .vol .cross { opacity: 0; transition: opacity .2s ease; }
+  .vol.muted .cross { opacity: 1; }
+  .vol input[type="range"] { -webkit-appearance: none; appearance: none; width: 92px; height: 4px; border-radius: 2px; background: var(--w4); outline: none; margin: 0; cursor: pointer; }
+  .vol input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--ink); border: 0; }
+  .vol input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--ink); border: 0; }
+  .vol .tip { display: none; font-size: .8rem; font-weight: 700; color: var(--ink-soft); white-space: nowrap; }
+  .vol.blocked .tip { display: block; }
+  .vol.blocked input[type="range"] { display: none; }
+  @media (max-width: 420px) { .vol input[type="range"] { width: 72px; } }
+
+  /* ---------- окно с клипом ---------- */
+  .clip { position: fixed; inset: 0; z-index: 40; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(31, 27, 36, .88); opacity: 0; transition: opacity .35s ease; }
+  .clip.open { display: flex; }
+  .clip.show { opacity: 1; }
+  .clip-box { position: relative; width: min(100%, 960px); aspect-ratio: 16 / 9; background: #000; border-radius: 18px; overflow: hidden; box-shadow: 0 30px 80px rgba(0, 0, 0, .5); transform: scale(.94); transition: transform .45s cubic-bezier(.2,.9,.3,1.1); }
+  .clip.show .clip-box { transform: none; }
+  .clip-box iframe, .clip-box video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
+  .clip-close { position: absolute; top: calc(14px + env(safe-area-inset-top, 0px)); right: calc(14px + env(safe-area-inset-right, 0px)); width: 46px; height: 46px; border: 0; border-radius: 50%; background: var(--w0); color: var(--ink); font: 700 1.3rem var(--sans); cursor: pointer; display: grid; place-items: center; padding: 0; }
+  .clip-close:focus-visible { outline: 3px solid var(--w4); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .clip, .clip-box { transition: none; }
+    .pop, .pop.show { transition: opacity .2s ease; transform: rotate(var(--rot)); }
+    .papa.in .fig { animation: none; }
+    .vol { transition: none; }
+    .ring, .spark, .portrait::before, .btn, .hint::after, .hug-btn::after { animation: none; }
+    .portrait, .hero h1 .hw span, .hero p, .hint { animation-duration: .01s; animation-delay: 0s; }
+    .rv, .txt { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"><div class="ring a"></div><div class="ring b"></div><div class="ring c"></div></div>
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<main>
+  <section class="hero">
+    <div class="portrait">
+      <div class="frame" data-slot="0" data-alt="Фото"></div>
+      <svg class="spark s1" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12C7 11 11 7 12 0z"/></svg>
+      <svg class="spark s2" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12C7 11 11 7 12 0z"/></svg>
+      <svg class="spark s3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12C7 11 11 7 12 0z"/></svg>
+    </div>
+    <h1 id="title" aria-label="Привет"></h1>
+    <p>Листай вниз</p>
+    <div class="hint" aria-hidden="true"></div>
+  </section>
+
+  <section class="scrub" id="scrub">
+    <div class="stick">
+      <p id="scrubText">МАМА КУПИ ПЕСИКА! С МАЛЕНЬКИМ КРУГЛЫМ НОСИКОМ.</p>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="track"></div>
+  </div>
+
+  <div class="col">
+    <div class="heading rv">
+      <h2>10 фактов </h2>
+      <p>Их на самом деле гораздо больше, но начнём с главных.</p>
+    </div>
+    <div id="blocks"></div>
+  </div>
+
+  <section class="ribbon" id="ribbon">
+    <div class="stick">
+      <h2>рисуночки</h2>
+      <div class="rtrack" id="rtrack"></div>
+    </div>
+  </section>
+
+  <section class="hug" id="hug">
+    <h2 class="rv">Давай обнимемся</h2>
+    <p class="hug-sub rv">Нажимай, пока шкала не заполнится</p>
+    <div class="hug-stage rv">
+      <svg class="hug-ring" viewBox="0 0 200 200" aria-hidden="true"><circle class="trk" cx="100" cy="100" r="92"/><circle class="bar" id="hugBar" cx="100" cy="100" r="92"/></svg>
+      <div class="hearts" id="hearts" aria-hidden="true"></div>
+      <button class="hug-btn" id="hugBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <span id="hugLabel">Обнять</span>
+      </button>
+    </div>
+    <div class="hug-count" id="hugCount" role="progressbar" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" aria-label="Обнимашки">0 из 10</div>
+    <div class="hug-msg" id="hugMsg" aria-live="polite"><h3></h3><p></p></div>
+  </section>
+
+  <section class="finale">
+    <div class="photo rv" data-slot="11" data-alt="Фото"></div>
+    <h2 class="rv">И ещё кое-что</h2>
+    <button class="btn" id="open" type="button">Открыть сюрприз</button>
+    <div class="surprise" id="surprise" aria-live="polite">
+      <span class="part">Ты лучшая.</span>
+      <span class="part">Обнимаю тебя крепко! ставлю лайк а теперь мучайся и смотри клип</span>
+      <span class="part sign" id="sign"></span>
+    </div>
+  </section>
+</main>
+
+<div class="vol" id="vol" role="group" aria-label="Громкость музыки">
+  <button type="button" id="volBtn" aria-label="Включить или выключить звук">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z"/>
+      <path class="wave" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>
+      <path class="cross" d="M16 9.5l5 5M21 9.5l-5 5"/>
+    </svg>
+  </button>
+  <input type="range" id="volRange" min="0" max="100" step="1" value="50" aria-label="Громкость">
+  <span class="tip">Нажми, чтобы включить музыку</span>
+</div>
+
+<div class="clip" id="clip" role="dialog" aria-modal="true" aria-label="Клип">
+  <button class="clip-close" id="clipClose" type="button" aria-label="Закрыть клип">&#10005;</button>
+  <div class="clip-box" id="clipBox"></div>
+</div>
+
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<script>
+(function () {
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
+
+  /* ФОТОГРАФИИ. Впиши пути к снимкам по порядку, например:
+     var PHOTOS = ["photos/0.jpg", "photos/1.jpg", ... "photos/11.jpg"];
+     0 — портрет в самом начале, 1–10 — по блокам (те же кадры потом едут в ленте), 11 — в финале.
+     Если фото меньше, оставь пустую строку "" на нужном месте, там будет заглушка. */
+  var PHOTOS = ["photos/0.jpg", "photos/1.jpg", "photos/2.jpg", "photos/3.jpg", "photos/4.jpg", "photos/5.jpg", "photos/6.jpg", "photos/7.jpg", "photos/8.jpg", "photos/9.jpg", "photos/10.jpg", "photos/11.jpg"];
+
+  var params = new URLSearchParams(location.search);
+    var FROM = (params.get("from") || "").slice(0, 30);
+
+  var CAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+
+  /* заголовок по буквам (слова не разрываются при переносе) */
+  var HEADLINE = "Для самой лучшей и красивой девочки";   // <- текст на первом экране
+  var title = document.getElementById("title");
+  var letterNo = 0;
+  var headWords = HEADLINE.split(" ");
+  headWords.forEach(function (word, wi) {
+    var w = document.createElement("span");
+    w.className = "hw";
+    word.split("").forEach(function (ch) {
+      var s = document.createElement("span");
+      s.textContent = ch;
+      s.style.animationDelay = (0.4 + letterNo * 0.045) + "s";
+      s.setAttribute("aria-hidden", "true");
+      w.appendChild(s);
+      letterNo++;
+    });
+    title.appendChild(w);
+    if (wi < headWords.length - 1) title.appendChild(document.createTextNode(" "));
+  });
+  title.setAttribute("aria-label", HEADLINE);
+  document.title = "Открытка для тебя";
+  if (FROM) document.getElementById("sign").textContent = "— " + FROM;
+
+  /* 10 блоков: сторона, размер, наклон и сдвиг фото у каждого свои */
+  var BLOCKS = [
+    { s: "l", t: "Бог роблокса", p: "Здесь её загрызла бешенная свинья в туалете.", w: "44%", rot: "-3deg", dy: "-18px", ar: "4/5", wm: "62%", ai: "center" },
+    { s: "r", t: "Таджикский мальчик", p: "Ты подписала эту фотку так только я не понял кто здесь таджикский мальчик.", w: "36%", rot: "4deg", dy: "34px", ar: "1/1", wm: "52%", ai: "flex-start" },
+    { s: "r", t: "Доброта", p: "Ты помогала мне забраться на башню, сбрасывая 10 летних детей в пропасть.", w: "52%", rot: "-2deg", dy: "0px", ar: "5/4", wm: "74%", ai: "center" },
+    { s: "l", t: "Смелость", p: "Самый смелый человек в интернете, но не за его границами", w: "34%", rot: "5deg", dy: "-40px", ar: "3/4", wm: "50%", ai: "flex-end" },
+    { s: "r", t: "VIP КАЗАШКА", p: "АЛГА КАЗАХСТАН", w: "46%", rot: "-4deg", dy: "24px", ar: "4/5", wm: "64%", ai: "center" },
+    { s: "l", t: "Умеешь слушать", p: "Тебе можно рассказать всё, и ты не осудишь, а просто поймёшь.", w: "40%", rot: "2deg", dy: "44px", ar: "1/1", wm: "58%", ai: "flex-start" },
+    { s: "l", t: "Юмор", p: "Твои шутки приходят ровно тогда, когда они нужнее всего (SELA-DALA).", w: "50%", rot: "-5deg", dy: "-26px", ar: "5/4", wm: "72%", ai: "center" },
+    { s: "r", t: "Вдохновляешь", p: "Самый умный человек по адресу: Амундсена 15.", w: "35%", rot: "3deg", dy: "10px", ar: "3/4", wm: "48%", ai: "flex-end" },
+    { s: "l", t: "Надёжность", p: "Я рассказал о том что обосрался два раза.", w: "44%", rot: "-2deg", dy: "-34px", ar: "4/5", wm: "66%", ai: "center" },
+    { s: "r", t: "Ты сама", p: "Просто за то, что ты именно такая. Второй тебя в мире нет.", w: "48%", rot: "4deg", dy: "20px", ar: "1/1", wm: "60%", ai: "center" }
+  ];
+  /* как появляется фото в каждом из 10 блоков: fly (влетает сбоку), drop (падает сверху), zoom (раскручивается), flip (переворачивается) */
+  var PHOTO_EFFECTS = ["fly", "drop", "zoom", "fly", "flip", "drop", "fly", "zoom", "flip", "drop"];
+  var blocksBox = document.getElementById("blocks");
+  BLOCKS.forEach(function (b, i) {
+    var el = document.createElement("div");
+    el.className = "block " + b.s;
+    el.style.cssText = "--w:" + b.w + ";--rot:" + b.rot + ";--dy:" + b.dy + ";--ar:" + b.ar + ";--wm:" + b.wm + ";--ai:" + b.ai + ";--enter:e-" + PHOTO_EFFECTS[i % PHOTO_EFFECTS.length];
+    el.innerHTML =
+      '<figure class="pic"><div class="frame" data-slot="' + (i + 1) + '" data-alt="Фото ' + (i + 1) + '"></div></figure>' +
+      '<article class="txt"><span class="n">' + (i + 1) + '</span><h3>' + b.t + '</h3><p>' + b.p + '</p></article>';
+    blocksBox.appendChild(el);
+  });
+
+  /* лента: те же фото в другом порядке и размерах */
+  var RIB = [
+    [3, 1.0, "4/5", "-30px", "-3deg"], [7, 1.25, "5/4", "40px", "2deg"], [1, 0.9, "3/4", "-10px", "4deg"],
+    [9, 1.1, "1/1", "50px", "-2deg"], [5, 1.0, "3/4", "-44px", "3deg"], [2, 1.3, "5/4", "20px", "-4deg"],
+    [10, 0.95, "4/5", "-20px", "2deg"], [6, 1.15, "1/1", "36px", "-3deg"], [4, 1.0, "3/4", "-34px", "4deg"],
+    [8, 1.2, "5/4", "14px", "-2deg"]
+  ];
+  var rtrack = document.getElementById("rtrack");
+  var itemIO = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); itemIO.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  RIB.forEach(function (r) {
+    var f = document.createElement("figure");
+    f.className = "item";
+    f.style.cssText = "--k:" + r[1] + ";--ar:" + r[2] + ";--dy:" + r[3] + ";--rot:" + r[4];
+    f.innerHTML = '<div class="frame" data-slot="' + r[0] + '" data-alt="Фото ' + r[0] + '"></div>';
+    rtrack.appendChild(f);
+    itemIO.observe(f);
+  });
+
+  /* подстановка фото или заглушек */
+  Array.prototype.forEach.call(document.querySelectorAll("[data-slot]"), function (el) {
+    var n = parseInt(el.dataset.slot, 10);
+    var src = PHOTOS[n];
+    if (src) {
+      var img = new Image(); img.alt = el.dataset.alt || "Фото"; img.src = src; el.appendChild(img);
+    } else {
+      var ph = document.createElement("div");
+      ph.className = "ph";
+      ph.innerHTML = CAM + (n === 0 || n === 11 ? "" : "<span>Фото " + n + "</span>");
+      el.appendChild(ph);
+    }
+  });
+
+  /* слова проявляются */
+  var scrubP = document.getElementById("scrubText");
+  var words = scrubP.textContent.trim().split(/\s+/);
+  scrubP.textContent = "";
+  var wordEls = words.map(function (w, i) {
+    var s = document.createElement("span");
+    s.className = "w"; s.textContent = w;
+    scrubP.appendChild(s);
+    if (i < words.length - 1) scrubP.appendChild(document.createTextNode(" "));
+    return s;
+  });
+
+  var scrubSec = document.getElementById("scrub");
+  var progress = document.getElementById("progress");
+  var ribbon = document.getElementById("ribbon");
+  var frames = Array.prototype.slice.call(document.querySelectorAll(".block .frame"));
+  var ribDist = 0, ticking = false;
+
+  function layoutRibbon() {
+    ribDist = Math.max(0, rtrack.scrollWidth - window.innerWidth);
+    ribbon.style.height = (ribDist + window.innerHeight * 1.1) + "px";
+  }
+
+  function update() {
+    ticking = false;
+    var vh = window.innerHeight;
+    var max = document.documentElement.scrollHeight - vh;
+    var p = max > 0 ? clamp(window.scrollY / max, 0, 1) : 0;
+    progress.style.transform = "scaleX(" + p + ")";
+
+    var r = scrubSec.getBoundingClientRect();
+    var t = clamp(-r.top / (r.height - vh), 0, 1);
+    var lit = Math.round(clamp(t * 1.2, 0, 1) * wordEls.length);
+    wordEls.forEach(function (el, i) { el.classList.toggle("on", i < lit); });
+
+    var rr = ribbon.getBoundingClientRect();
+    var rt = clamp(-rr.top / Math.max(1, rr.height - vh), 0, 1);
+    rtrack.style.transform = "translate3d(" + (-ribDist * rt).toFixed(1) + "px,0,0)";
+
+    if (!reduce) {
+      frames.forEach(function (f) {
+        var b = f.getBoundingClientRect();
+        if (b.bottom < -100 || b.top > vh + 100) return;
+        var off = ((b.top + b.height / 2) - vh / 2) / vh;
+        f.style.setProperty("--py", (clamp(off, -1, 1) * -b.height * 0.04).toFixed(1) + "px");
+      });
+    }
+  }
+  function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+  function onResize() { layoutRibbon(); onScroll(); }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onResize);
+  window.addEventListener("load", onResize);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(onResize);
+  layoutRibbon(); update();
+
+  /* появление блоков */
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.2 });
+  Array.prototype.forEach.call(document.querySelectorAll(".rv, .block"), function (el) { io.observe(el); });
+
+  /* ---------- ВЫСКАКИВАЮЩИЕ ФОТО: 5 штук, появляются по очереди по ходу прокрутки ---------- */
+  /* Впиши пути к пяти снимкам, например: var POP_PHOTOS = ["pop/1.jpg", "pop/2.jpg", "pop/3.jpg", "pop/4.jpg", "pop/5.jpg"];
+     Можно использовать и те же файлы, что в PHOTOS. Пустая строка "" покажет заглушку. */
+  var POP_PHOTOS = ["pop/1.jpg", "pop/2.jpg", "pop/3.jpg", "pop/4.jpg", "pop/5.jpg"];
+  var POP_SHOW_MS = 3200;   // сколько секунд фото остаётся на экране (в миллисекундах)
+
+  var POPS = [
+    { el: document.querySelector(".marquee"), at: 0.85, side: "r", top: "16%", rot: "6deg",  w: "clamp(150px, 26vw, 230px)", ar: "4/5" },
+    { el: blocksBox.children[1],              at: 0.55, side: "l", top: "40%", rot: "-5deg", w: "clamp(150px, 27vw, 240px)", ar: "1/1" },
+    { el: blocksBox.children[3],              at: 0.55, side: "r", top: "50%", rot: "-4deg", w: "clamp(145px, 25vw, 220px)", ar: "3/4" },
+    { el: blocksBox.children[6],              at: 0.55, side: "l", top: "14%", rot: "4deg",  w: "clamp(150px, 28vw, 250px)", ar: "5/4" },
+    { el: blocksBox.children[8],              at: 0.55, side: "r", top: "28%", rot: "-6deg", w: "clamp(150px, 26vw, 230px)", ar: "4/5" }
+  ];
+  POPS.forEach(function (p, i) {
+    var d = document.createElement("div");
+    d.className = "pop " + p.side;
+    d.setAttribute("aria-hidden", "true");
+    d.style.cssText = "--top:" + p.top + ";--rot:" + p.rot + ";--w:" + p.w + ";--ar:" + p.ar;
+    var f = document.createElement("div");
+    f.className = "frame";
+    if (POP_PHOTOS[i]) {
+      var im = new Image(); im.alt = ""; im.src = POP_PHOTOS[i]; f.appendChild(im);
+    } else {
+      f.innerHTML = '<div class="ph">' + CAM + '<span>Фото</span></div>';
+    }
+    d.appendChild(f);
+    document.body.appendChild(d);
+    p.node = d;
+  });
+
+  var popNext = 0, popQueue = [], popBusy = false;
+  function runPops() {
+    if (popBusy || !popQueue.length) return;
+    popBusy = true;
+    var node = popQueue.shift();
+    node.classList.add("show");
+    setTimeout(function () {
+      node.classList.remove("show");
+      setTimeout(function () { popBusy = false; runPops(); }, 900);   // небольшая пауза, потом следующее фото
+    }, POP_SHOW_MS);
+  }
+  function checkPops() {
+    var vh = window.innerHeight;
+    while (popNext < POPS.length) {
+      var p = POPS[popNext];
+      if (!p.el) { popNext++; continue; }
+      var top = p.el.getBoundingClientRect().top;
+      if (top > vh * p.at) break;                 // до этого места ещё не доскроллили
+      if (top > -vh * 1.5) popQueue.push(p.node); // слишком далеко пролистанные пропускаем
+      popNext++;
+    }
+    runPops();
+  }
+  window.addEventListener("scroll", checkPops, { passive: true });
+  window.addEventListener("resize", checkPops);
+
+  /* ---------- МУЗЫКА: стартует при первой прокрутке, есть только регулятор громкости ---------- */
+  var AUDIO_SRC = "kupi-pesika.mp3";   // положи mp3 рядом с этим html-файлом (или укажи свой путь/ссылку)
+  var DEFAULT_VOLUME = 0.5;            // громкость по умолчанию, от 0 до 1
+
+  var vol = document.getElementById("vol");
+  var volBtn = document.getElementById("volBtn");
+  var slider = document.getElementById("volRange");
+  var audio = new Audio();
+  audio.loop = true;
+  audio.preload = "auto";
+  audio.volume = 0;
+  audio.src = AUDIO_SRC;
+  slider.value = Math.round(DEFAULT_VOLUME * 100);
+
+  var started = false, fadeId = 0;
+  setTimeout(function () { vol.classList.add("show"); }, 1200);
+
+  function syncIcon() { vol.classList.toggle("muted", audio.muted || audio.volume === 0 || +slider.value === 0); }
+
+  function fadeIn() {
+    var t0 = performance.now(), dur = 1800;
+    cancelAnimationFrame(fadeId);
+    (function step(now) {
+      var k = clamp((now - t0) / dur, 0, 1);
+      audio.volume = (slider.value / 100) * k;
+      syncIcon();
+      if (k < 1) fadeId = requestAnimationFrame(step);
+    })(t0);
+  }
+
+  var EVENTS = ["scroll", "wheel", "touchstart", "touchmove", "touchend", "pointerdown", "keydown", "click"];
+  function onGesture(e) {
+    if (started) return;
+    if (e.type === "scroll" && window.scrollY < 4) return;   // ждём именно начала прокрутки
+    var pr = audio.play();
+    if (pr && pr.then) {
+      pr.then(onStarted).catch(function () { vol.classList.add("blocked"); });   // браузер не разрешил, попробуем при следующем касании
+    } else { onStarted(); }
+  }
+  function onStarted() {
+    if (started) return;
+    started = true;
+    vol.classList.remove("blocked");
+    EVENTS.forEach(function (n) { window.removeEventListener(n, onGesture, true); });
+    fadeIn();
+  }
+  EVENTS.forEach(function (n) { window.addEventListener(n, onGesture, { capture: true, passive: true }); });
+
+  slider.addEventListener("input", function () {
+    cancelAnimationFrame(fadeId);
+    audio.muted = false;
+    audio.volume = slider.value / 100;
+    syncIcon();
+  });
+  volBtn.addEventListener("click", function () {
+    if (!started) { onGesture({ type: "click" }); return; }
+    if (audio.muted || audio.volume === 0) {
+      audio.muted = false;
+      if (+slider.value === 0) slider.value = Math.round(DEFAULT_VOLUME * 100);
+      audio.volume = slider.value / 100;
+    } else { audio.muted = true; }
+    syncIcon();
+  });
+  document.addEventListener("visibilitychange", function () {
+    if (!started || clipOpen) return;
+    if (document.hidden) audio.pause(); else audio.play().catch(function () {});
+  });
+  audio.addEventListener("error", function () {
+    console.warn("Не найден файл музыки: " + AUDIO_SRC);
+    vol.style.display = "none";
+  });
+  syncIcon();
+
+  /* ---------- ЛЕНТА СЛОВ: едет сама, при прокрутке ускоряется ---------- */
+  var MARQUEE_WORDS = ["красивая", "добрая", "про роблокс", "смешная", "настоящая", "любит бить детей шлепалкой", "красивая", "добрая", "смелая", "смешная", "настоящая", "родная"];
+  var MARQUEE_SPEED = 70;   // скорость в пикселях за секунду
+
+  var mqTrack = document.querySelector(".marquee .track");
+  var mqLoop = 0, mqX = 0, mqBoost = 0, mqLastY = window.scrollY, mqT = performance.now();
+  function buildMarquee() {
+    mqTrack.innerHTML = "";
+    function addSet() {
+      MARQUEE_WORDS.forEach(function (w) { var sp = document.createElement("span"); sp.textContent = w; mqTrack.appendChild(sp); });
+    }
+    addSet();
+    mqLoop = mqTrack.scrollWidth;
+    var more = Math.ceil((window.innerWidth * 2) / Math.max(1, mqLoop));
+    for (var i = 0; i < more; i++) addSet();
+  }
+  function mqTick(now) {
+    var dt = Math.min(0.05, (now - mqT) / 1000); mqT = now;
+    var y = window.scrollY;
+    mqBoost += (y - mqLastY) * 0.5; mqLastY = y;
+    mqBoost *= Math.max(0, 1 - dt * 2.5);
+    var k = reduce ? 0.4 : 1;
+    mqX -= (MARQUEE_SPEED * k + clamp(mqBoost, -400, 900) * k) * dt;
+    if (mqLoop > 0) {
+      while (mqX <= -mqLoop) mqX += mqLoop;
+      while (mqX > 0) mqX -= mqLoop;
+    }
+    mqTrack.style.transform = "translate3d(" + mqX.toFixed(1) + "px,0,0)";
+    requestAnimationFrame(mqTick);
+  }
+  buildMarquee();
+  requestAnimationFrame(mqTick);
+  window.addEventListener("resize", buildMarquee);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(buildMarquee);
+
+  /* ---------- ПАПАРАЦЦИ в ленте фото: выскакивают, снимают со вспышкой и щёлкают затвором ---------- */
+  var SFX_VOLUME = 0.6;   // громкость щелчков затвора, от 0 до 1
+  var PAPA_SPOTS = [
+    { pos: "left:3%",                       flip: false },
+    { pos: "right:clamp(210px, 28vw, 340px)", flip: true },
+    { pos: "left:26%",                      flip: false },
+    { pos: "right:clamp(210px, 15vw, 250px)", flip: true },
+    { pos: "left:12%",                      flip: false }
+  ];
+  var PAPA_SVG = '<svg class="person" viewBox="0 0 130 210" aria-hidden="true">' +
+    '<rect x="14" y="98" width="76" height="130" rx="34" fill="#1f1b24"/>' +
+    '<path d="M30 124 C 34 160, 66 150, 78 96" fill="none" stroke="#fff" stroke-width="19" stroke-linecap="round"/>' +
+    '<path d="M30 124 C 34 160, 66 150, 78 96" fill="none" stroke="#2b2733" stroke-width="14" stroke-linecap="round"/>' +
+    '<path d="M74 126 C 98 126, 110 112, 106 92" fill="none" stroke="#fff" stroke-width="17" stroke-linecap="round"/>' +
+    '<path d="M74 126 C 98 126, 110 112, 106 92" fill="none" stroke="#2b2733" stroke-width="12" stroke-linecap="round"/>' +
+    '<circle cx="52" cy="60" r="25" fill="#1f1b24"/>' +
+    '<path d="M27 56 a25 25 0 0 1 50 0 z" fill="#4a4553"/>' +
+    '<rect x="58" y="50" width="30" height="7" rx="3.5" fill="#4a4553"/>' +
+    '<rect x="62" y="62" width="58" height="36" rx="7" fill="#2b2733" stroke="#fff" stroke-width="2.5"/>' +
+    '<rect x="72" y="54" width="16" height="9" rx="2.5" fill="#2b2733" stroke="#fff" stroke-width="2"/>' +
+    '<circle cx="104" cy="80" r="13" fill="#fff"/><circle cx="104" cy="80" r="9" fill="#1f1b24"/><circle cx="101" cy="77" r="2.6" fill="#fff"/>' +
+    '<rect x="68" y="68" width="13" height="7" rx="2" fill="#fff"/>' +
+    '<circle cx="80" cy="97" r="7.5" fill="#2b2733" stroke="#fff" stroke-width="2"/>' +
+    '<circle cx="108" cy="94" r="7.5" fill="#2b2733" stroke="#fff" stroke-width="2"/></svg>';
+  var starPts = [];
+  for (var si = 0; si < 24; si++) {
+    var sr = si % 2 === 0 ? 46 : 19, sa = (si / 24) * Math.PI * 2;
+    starPts.push((Math.cos(sa) * sr).toFixed(1) + "," + (Math.sin(sa) * sr).toFixed(1));
+  }
+  var STAR_SVG = '<svg class="burst" viewBox="-50 -50 100 100" aria-hidden="true"><polygon points="' + starPts.join(" ") + '"/></svg>';
+
+  var flashEl = document.createElement("div");
+  flashEl.className = "flash";
+  flashEl.setAttribute("aria-hidden", "true");
+  document.body.appendChild(flashEl);
+
+  var papas = PAPA_SPOTS.map(function (sp) {
+    var d = document.createElement("div");
+    d.className = "papa" + (sp.flip ? " flip" : "");
+    d.style.cssText = sp.pos;
+    d.setAttribute("aria-hidden", "true");
+    d.innerHTML = '<div class="mir"><div class="fig">' + PAPA_SVG + STAR_SVG + '</div></div>';
+    document.body.appendChild(d);
+    return { el: d, busy: false };
+  });
+
+  /* звук затвора синтезируется прямо в браузере, отдельные файлы не нужны */
+  var sfxCtx = null, noiseBuf = null;
+  function ensureSfx() {
+    try {
+      if (!sfxCtx) { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; sfxCtx = new AC(); }
+      if (sfxCtx.state === "suspended") sfxCtx.resume();
+    } catch (e) {}
+  }
+  ["pointerdown", "touchend", "keydown", "click"].forEach(function (n) { window.addEventListener(n, ensureSfx, { passive: true }); });
+
+  function clickSound(t, g) {
+    if (!noiseBuf) {
+      var len = Math.floor(sfxCtx.sampleRate * 0.06);
+      noiseBuf = sfxCtx.createBuffer(1, len, sfxCtx.sampleRate);
+      var dat = noiseBuf.getChannelData(0);
+      for (var i = 0; i < len; i++) dat[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+    }
+    var src = sfxCtx.createBufferSource(); src.buffer = noiseBuf;
+    var bp = sfxCtx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 2200; bp.Q.value = 0.7;
+    var gn = sfxCtx.createGain(); gn.gain.value = g * SFX_VOLUME;
+    src.connect(bp); bp.connect(gn); gn.connect(sfxCtx.destination); src.start(t);
+    var o = sfxCtx.createOscillator(), og = sfxCtx.createGain();
+    o.type = "square";
+    o.frequency.setValueAtTime(180, t); o.frequency.exponentialRampToValueAtTime(60, t + 0.05);
+    og.gain.setValueAtTime(0.18 * g * SFX_VOLUME, t); og.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+    o.connect(og); og.connect(sfxCtx.destination); o.start(t); o.stop(t + 0.07);
+  }
+  function shutter() {
+    if (!sfxCtx || sfxCtx.state !== "running") return;
+    if (audio.muted || +slider.value === 0) return;   // если музыку выключили, щелчки тоже молчат
+    var t = sfxCtx.currentTime;
+    clickSound(t, 1);
+    clickSound(t + 0.075, 0.65);
+  }
+
+  var papaActive = 0, papaCursor = 0, papaIdx = -1, PAPA_STEPS = 9;
+  function flashOnce(p) {
+    var star = p.el.querySelector(".burst");
+    star.classList.remove("go"); void star.getBoundingClientRect(); star.classList.add("go");
+    if (!reduce) { flashEl.classList.remove("go"); void flashEl.offsetWidth; flashEl.classList.add("go"); }
+    shutter();
+  }
+  function startPapa(p) {
+    p.busy = true; papaActive++;
+    p.el.classList.add("in");
+    [650, 1150, 1600].forEach(function (ms) { setTimeout(function () { flashOnce(p); }, ms); });
+    setTimeout(function () { p.el.classList.remove("in"); }, 2300);
+    setTimeout(function () { p.busy = false; papaActive--; }, 3000);
+  }
+  function checkPapa() {
+    var vh = window.innerHeight, rr = ribbon.getBoundingClientRect();
+    var span = rr.height - vh;
+    if (span <= 0) return;
+    var rt = -rr.top / span;
+    if (rt < 0.03 || rt > 0.97) { papaIdx = -1; return; }   // вне ленты фото
+    var idx = Math.floor(rt * PAPA_STEPS);
+    if (idx === papaIdx) return;
+    papaIdx = idx;
+    if (papaActive >= 2) return;
+    for (var k = 0; k < papas.length; k++) {
+      var cand = papas[(papaCursor + k) % papas.length];
+      if (!cand.busy) { papaCursor = (papaCursor + k + 1) % papas.length; startPapa(cand); break; }
+    }
+  }
+  window.addEventListener("scroll", checkPapa, { passive: true });
+
+  /* ---------- КНОПКА «ОБНЯТЬ»: шкала, сердечки и тёплое сообщение ---------- */
+  var HUG_GOAL = 10;                                              // сколько нажатий нужно
+  var HUG_TITLE = "Лови обнимашку!";                              // заголовок сообщения
+  var HUG_TEXT = "Это была самая тёплая. Ты лучшая, и я всегда рядом.";   // текст сообщения
+
+  var hugBtn = document.getElementById("hugBtn");
+  var hugBar = document.getElementById("hugBar");
+  var hugCount = document.getElementById("hugCount");
+  var hugMsg = document.getElementById("hugMsg");
+  var hugLabel = document.getElementById("hugLabel");
+  var heartsBox = document.getElementById("hearts");
+  var hugN = 0, HUG_CIRC = 578;
+  hugMsg.querySelector("h3").textContent = HUG_TITLE;
+  hugMsg.querySelector("p").textContent = HUG_TEXT;
+  hugCount.textContent = "0 из " + HUG_GOAL;
+  hugCount.setAttribute("aria-valuemax", HUG_GOAL);
+
+  var HEART_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+  var HEART_COLORS = ["#1f1b24", "#4a4553", "#8b8794"];
+  function rnd(a, b) { return a + Math.random() * (b - a); }
+
+  function spawnHearts(n) {
+    for (var i = 0; i < n; i++) {
+      var h = document.createElement("span");
+      h.className = "heart";
+      h.innerHTML = HEART_SVG;
+      var k = reduce ? 0.4 : 1;
+      h.style.setProperty("--c", HEART_COLORS[(Math.random() * HEART_COLORS.length) | 0]);
+      h.style.setProperty("--dx", (rnd(-110, 110) * k).toFixed(0) + "px");
+      h.style.setProperty("--dy", (-rnd(140, 280) * k).toFixed(0) + "px");
+      h.style.setProperty("--s", rnd(0.8, 1.5).toFixed(2));
+      h.style.setProperty("--r", rnd(-40, 40).toFixed(0) + "deg");
+      h.style.setProperty("--dur", rnd(1.1, 1.9).toFixed(2) + "s");
+      h.addEventListener("animationend", function (e) { if (e.target.parentNode) e.target.parentNode.removeChild(e.target); });
+      heartsBox.appendChild(h);
+    }
+  }
+
+  /* мягкий «пуп» при каждом нажатии: чем дальше шкала, тем выше тон */
+  function softPop(n) {
+    if (!sfxCtx || sfxCtx.state !== "running") return;
+    if (audio.muted || +slider.value === 0) return;
+    var t = sfxCtx.currentTime, f = 480 + n * 55;
+    var o = sfxCtx.createOscillator(), g = sfxCtx.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(f, t);
+    o.frequency.exponentialRampToValueAtTime(f * 1.35, t + 0.09);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.22 * SFX_VOLUME, t + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+    o.connect(g); g.connect(sfxCtx.destination);
+    o.start(t); o.stop(t + 0.24);
+  }
+
+  hugBtn.addEventListener("click", function () {
+    hugBtn.classList.remove("squish"); void hugBtn.offsetWidth; hugBtn.classList.add("squish");
+    spawnHearts(reduce ? 3 : 5 + Math.min(hugN, 6));
+    if (navigator.vibrate) { try { navigator.vibrate(12); } catch (e) {} }
+    if (hugN < HUG_GOAL) {
+      hugN++;
+      hugBar.style.strokeDashoffset = (HUG_CIRC * (1 - hugN / HUG_GOAL)).toFixed(1);
+      hugCount.textContent = hugN + " из " + HUG_GOAL;
+      hugCount.setAttribute("aria-valuenow", hugN);
+      softPop(hugN);
+      if (hugN === HUG_GOAL) {
+        hugMsg.classList.add("show");
+        hugLabel.textContent = "Ещё!";
+        spawnHearts(reduce ? 6 : 20);
+        var r = hugBtn.getBoundingClientRect();
+        burst(r.left + r.width / 2, r.top + r.height / 2, reduce ? 30 : 90);
+      }
+    } else {
+      softPop(HUG_GOAL);
+    }
+  });
+
+  /* ---------- КЛИП: открывается по кнопке в конце ---------- */
+  var CLIP_YOUTUBE_ID = "ixidX4_77Bo";   // код клипа на YouTube: youtube.com/watch?v=ЭТОТ_КОД
+  var CLIP_FILE = "kupi-pesika.mp4";                    // или свой файл, например "kupi-pesika.mp4" (тогда YouTube не используется)
+
+  var clip = document.getElementById("clip");
+  var clipBox = document.getElementById("clipBox");
+  var clipClose = document.getElementById("clipClose");
+  var clipOpen = false, resumeMusic = false;
+
+  function openClip() {
+    if (clipOpen || (!CLIP_FILE && !CLIP_YOUTUBE_ID)) return;
+    clipOpen = true;
+    resumeMusic = started && !audio.paused;
+    if (resumeMusic) audio.pause();          // на время клипа фоновая музыка замолкает
+    clipBox.innerHTML = "";
+    var node;
+    if (CLIP_FILE) {
+      node = document.createElement("video");
+      node.src = CLIP_FILE;
+      node.controls = true;
+      node.autoplay = true;
+      node.setAttribute("playsinline", "");
+      var pr = node.play();
+      if (pr && pr.catch) pr.catch(function () {});
+    } else {
+      node = document.createElement("iframe");
+      node.src = "https://www.youtube-nocookie.com/embed/" + CLIP_YOUTUBE_ID + "?autoplay=1&rel=0&playsinline=1&modestbranding=1";
+      node.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+      node.allowFullscreen = true;
+      node.title = "Клип";
+      node.referrerPolicy = "strict-origin-when-cross-origin";
+    }
+    clipBox.appendChild(node);
+    clip.classList.add("open");
+    requestAnimationFrame(function () { requestAnimationFrame(function () { clip.classList.add("show"); }); });
+    clipClose.focus();
+  }
+
+  function closeClip() {
+    if (!clipOpen) return;
+    clipOpen = false;
+    clip.classList.remove("show");
+    setTimeout(function () {
+      if (clipOpen) return;
+      clip.classList.remove("open");
+      clipBox.innerHTML = "";                // останавливает клип
+    }, 350);
+    if (resumeMusic && !audio.muted) {
+      var pr = audio.play();
+      if (pr && pr.then) pr.then(fadeIn).catch(function () {}); else fadeIn();
+    }
+    var b = document.getElementById("open");
+    if (b) b.focus();
+  }
+
+  clipClose.addEventListener("click", closeClip);
+  clip.addEventListener("click", function (e) { if (e.target === clip) closeClip(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeClip(); });
+
+  /* конфетти */
+  var canvas = document.getElementById("confetti");
+  var ctx = canvas.getContext("2d");
+  var parts = [], running = false;
+  var colors = ["#1f1b24", "#4a4553", "#8b8794", "#b9b4ab", "#d8d4cd"];
+  function fit() {
+    var d = window.devicePixelRatio || 1;
+    canvas.width = innerWidth * d; canvas.height = innerHeight * d;
+    ctx.setTransform(d, 0, 0, d, 0, 0);
+  }
+  fit(); window.addEventListener("resize", fit);
+
+  function burst(x, y, n) {
+    for (var i = 0; i < n; i++) {
+      var a = Math.random() * Math.PI * 2, v = Math.random() * 9 + 4;
+      parts.push({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 7,
+        w: Math.random() * 8 + 5, h: Math.random() * 5 + 3, rot: Math.random() * 6, vr: (Math.random() - .5) * .35,
+        c: colors[(Math.random() * colors.length) | 0], life: 1, heart: Math.random() < .2 });
+    }
+    if (!running) { running = true; requestAnimationFrame(loop); }
+  }
+  function loop() {
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    parts = parts.filter(function (p) { return p.life > 0 && p.y < innerHeight + 40; });
+    parts.forEach(function (p) {
+      p.vy += 0.22; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= 0.004;
+      ctx.save();
+      ctx.globalAlpha = clamp(p.life * 2, 0, 1);
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.c;
+      if (p.heart) { ctx.font = (p.w * 2) + "px sans-serif"; ctx.textAlign = "center"; ctx.fillText("♥", 0, 0); }
+      else ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+    if (parts.length) requestAnimationFrame(loop);
+    else { running = false; ctx.clearRect(0, 0, innerWidth, innerHeight); }
+  }
+
+  var openBtn = document.getElementById("open");
+  var surprise = document.getElementById("surprise");
+  openBtn.addEventListener("click", function () {
+    var first = !surprise.classList.contains("show");
+    surprise.classList.add("show");
+    openBtn.textContent = "Ещё раз!";
+    var n = reduce ? 30 : 110, w = innerWidth, h = innerHeight;
+    burst(w * 0.5, h * 0.55, n);
+    setTimeout(function () { burst(w * 0.2, h * 0.65, n); }, 250);
+    setTimeout(function () { burst(w * 0.8, h * 0.65, n); }, 450);
+    if (first) surprise.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+    openClip();
+  });
+})();
+</script>
+</body>
+</html>
