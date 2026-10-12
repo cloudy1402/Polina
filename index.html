@@ -509,6 +509,14 @@
   var frames = Array.prototype.slice.call(document.querySelectorAll(".block .frame"));
   var ribDist = 0, ticking = false;
 
+  /* письмо: показываем его надёжно, не зависимо от высоты блока на узком экране */
+  var letterEl = document.getElementById("letter");
+  function showLetter() { letterEl.classList.add("in"); }
+  function checkLetter() {
+    if (letterEl.classList.contains("in")) return;
+    if (letterEl.getBoundingClientRect().top < window.innerHeight * 0.95) showLetter();
+  }
+
   function layoutRibbon() {
     ribDist = Math.max(0, rtrack.scrollWidth - window.innerWidth);
     ribbon.style.height = (ribDist + window.innerHeight * 1.1) + "px";
@@ -538,6 +546,7 @@
         f.style.setProperty("--py", (clamp(off, -1, 1) * -b.height * 0.04).toFixed(1) + "px");
       });
     }
+    checkLetter();
   }
   function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
   function onResize() { layoutRibbon(); onScroll(); }
@@ -553,7 +562,19 @@
       if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
     });
   }, { threshold: 0.2 });
-  Array.prototype.forEach.call(document.querySelectorAll(".rv, .block"), function (el) { io.observe(el); });
+  Array.prototype.forEach.call(document.querySelectorAll(".rv, .block"), function (el) {
+    if (el.id === "letter") return;   // письмо показывается отдельно (см. showLetter)
+    io.observe(el);
+  });
+  /* письмо: порог 0, чтобы оно появлялось, как только его край виден (на телефоне блок высокий) */
+  if ("IntersectionObserver" in window) {
+    var letterIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { showLetter(); letterIO.disconnect(); } });
+    }, { threshold: 0 });
+    letterIO.observe(letterEl);
+  } else {
+    showLetter();
+  }
 
   /* ---------- ВЫСКАКИВАЮЩИЕ ФОТО: 5 штук, появляются по очереди по ходу прокрутки ---------- */
   /* Впиши пути к пяти снимкам, например: var POP_PHOTOS = ["pop/1.jpg", "pop/2.jpg", "pop/3.jpg", "pop/4.jpg", "pop/5.jpg"];
