@@ -192,6 +192,39 @@
   .finale .photo { width: min(70vw, 260px); aspect-ratio: 4 / 5; border-radius: 130px 130px 26px 26px; overflow: hidden; position: relative; background: var(--w2); border: 8px solid var(--w0); box-shadow: var(--shadow); margin-bottom: 36px; }
   .finale h2 { font-size: clamp(2.4rem, 9vw, 3.8rem); }
 
+  /* ---------- цветы в конце: каллы и лилии по бокам ---------- */
+  .finale { position: relative; }
+  .finale > * { position: relative; z-index: 1; }
+  /* обёртка письма: цветы стоят по его бокам, низ букетов на уровне низа письма */
+  .letter-wrap { position: relative; width: min(100%, 560px); margin: 26px auto 0; }
+  .letter-wrap .letter { width: 100%; margin: 0; z-index: 1; }
+  .letter-wrap .flowers { position: absolute; bottom: 0; z-index: 0; width: clamp(150px, calc((100vw - 560px) / 2 + 30px), 300px); pointer-events: none; }
+  .letter-wrap .fl-l { right: calc(100% - 30px); }
+  .letter-wrap .fl-r { left: calc(100% - 30px); }
+  /* на узком экране по бокам места нет: букеты растут из-за письма и выглядывают над его верхними углами */
+  @media (max-width: 720px) {
+    .letter-wrap { margin-top: 170px; }
+    .letter-wrap .flowers { width: clamp(120px, 32vw, 170px); bottom: calc(100% - 80px); }
+    .letter-wrap .fl-l { right: auto; left: -6px; }
+    .letter-wrap .fl-r { left: auto; right: -6px; }
+  }
+  .flowers svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .flowers .stem { stroke-dasharray: 1; stroke-dashoffset: 1; }
+  .flowers .leaf { transform: scale(0); transform-box: fill-box; transform-origin: 50% 100%; }
+  .flowers .bloom { transform: scale(0); transform-box: fill-box; }
+  .flowers .bloom.calla { transform-origin: 50% 100%; }
+  .flowers .bloom.lily { transform-origin: 50% 50%; }
+  .flowers .sway { transform-box: view-box; transform-origin: 50% 100%; }
+  .flowers.go .stem { animation: fl-grow 1.6s cubic-bezier(.3, .8, .3, 1) var(--d, 0s) forwards; }
+  .flowers.go .leaf { animation: fl-leaf 1.2s cubic-bezier(.2, 1.2, .4, 1) var(--d, 0s) forwards; }
+  .flowers.go .bloom { animation: fl-open 1.2s cubic-bezier(.2, 1.5, .4, 1) calc(var(--d, 0s) + 1.1s) forwards; }
+  .flowers.go .sway { animation: fl-sway 6s ease-in-out 3.2s infinite alternate; }
+  .fl-r.go .sway { animation-duration: 7.5s; }
+  @keyframes fl-grow { to { stroke-dashoffset: 0; } }
+  @keyframes fl-leaf { from { transform: scale(0); } to { transform: scale(1); } }
+  @keyframes fl-open { from { transform: scale(0) rotate(-35deg); } to { transform: scale(1) rotate(0deg); } }
+  @keyframes fl-sway { from { transform: rotate(-1.2deg); } to { transform: rotate(1.2deg); } }
+
   /* ---------- письмо ---------- */
   .letter { position: relative; width: min(100%, 560px); margin: 26px auto 0; padding: 40px 34px 34px; text-align: left;
     background: var(--w0); border: 1.5px solid var(--w3); border-radius: 26px; box-shadow: var(--shadow); }
@@ -279,6 +312,7 @@
     .clip, .clip-box { transition: none; }
     .pop, .pop.show { transition: opacity .2s ease; transform: rotate(var(--rot)); }
     .papa.in .fig { animation: none; }
+    .flowers.go .sway { animation: none; }
     .vol { transition: none; }
     .ring, .spark, .portrait::before, .btn, .hint::after, .hug-btn::after { animation: none; }
     .portrait, .hero h1 .hw span, .hero p, .hint { animation-duration: .01s; animation-delay: 0s; }
@@ -349,6 +383,9 @@
     <h2 class="rv">И ещё кое-что</h2>
 
     <!-- ТВОЁ ПИСЬМО: замени текст внутри <p>. Каждый <p> это отдельный абзац, они появляются по очереди. -->
+    <div class="letter-wrap">
+      <div class="flowers fl-l" aria-hidden="true"></div>
+      <div class="flowers fl-r" aria-hidden="true"></div>
     <article class="letter rv" id="letter">
       <p class="letter-hi">Дорогая моя Полина</p>
       <p>Хочется сказать тебе несколько слов, и лучше всего это получается письмом.</p>
@@ -356,6 +393,7 @@
       <p>Я не думал, что встречу человека, с которым мне так будет хорошо рядом. Спасибо тебе</p>
       <p class="letter-sign">С любовью, Глеб<br><span id="letterFrom"></span></p>
     </article>
+    </div>
 
     <button class="btn" id="open" type="button">Открыть сюрприз</button>
     <div class="surprise" id="surprise" aria-live="polite">
@@ -986,6 +1024,85 @@
   clipClose.addEventListener("click", closeClip);
   clip.addEventListener("click", function (e) { if (e.target === clip) closeClip(); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeClip(); });
+
+  /* ---------- ЦВЕТЫ: каллы и лилии по бокам в конце открытки ---------- */
+  var FLOWER_COLORS = { stem: "#7e9c84", leaf: "#9bb5a0", rib: "#6f8d76", petal: "#ffffff", shade: "#efece6", line: "#cdc7bc", vein: "#e1ddd5", spadix: "#e6bf5c", anther: "#b8743a", core: "#d6d28a" };
+
+  function drawCalla() {
+    var C = FLOWER_COLORS;
+    return '<path d="M0 0 C-26 -16 -40 -58 -24 -106 C-16 -130 2 -146 18 -168 C28 -132 44 -88 30 -52 C23 -26 12 -8 0 0Z" fill="' + C.petal + '" stroke="' + C.line + '" stroke-width="2.2" stroke-linejoin="round"/>' +
+      '<ellipse cx="4" cy="-92" rx="6.5" ry="30" transform="rotate(6 4 -92)" fill="' + C.spadix + '"/>' +
+      '<path d="M-23 -100 C-6 -86 14 -70 28 -56 C23 -26 12 -8 0 0 C-26 -16 -40 -58 -23 -100Z" fill="' + C.shade + '" stroke="' + C.line + '" stroke-width="2.2" stroke-linejoin="round"/>' +
+      '<path d="M-6 -20 C-10 -46 -8 -70 -4 -90" fill="none" stroke="' + C.vein + '" stroke-width="2" stroke-linecap="round"/>';
+  }
+
+  function drawLily() {
+    var C = FLOWER_COLORS, s = "", i, a;
+    var petal = "M0 0 C-13 -16 -17 -46 0 -72 C17 -46 13 -16 0 0Z";
+    for (i = 0; i < 6; i++) {
+      s += '<path d="' + petal + '" transform="rotate(' + (i * 60) + ')" fill="' + (i % 2 ? C.shade : C.petal) + '" stroke="' + C.line + '" stroke-width="2" stroke-linejoin="round"/>';
+      s += '<path d="M0 -8 L0 -50" transform="rotate(' + (i * 60) + ')" stroke="' + C.vein + '" stroke-width="2" stroke-linecap="round"/>';
+    }
+    for (i = 0; i < 6; i++) {
+      a = (i * 60 + 30) * Math.PI / 180;
+      var x = Math.sin(a) * 30, y = -Math.cos(a) * 30;
+      s += '<path d="M0 0 L' + x.toFixed(1) + ' ' + y.toFixed(1) + '" stroke="#b9b2a4" stroke-width="1.8" stroke-linecap="round"/>';
+      s += '<ellipse cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" rx="3" ry="6" transform="rotate(' + (i * 60 + 30) + ' ' + x.toFixed(1) + ' ' + y.toFixed(1) + ')" fill="' + C.anther + '"/>';
+    }
+    s += '<circle r="5.5" fill="' + C.core + '"/>';
+    return s;
+  }
+
+  function leafPath(len) {
+    var a = (len * 0.16).toFixed(1), b = (len * 0.14).toFixed(1), c = (len * 0.3).toFixed(1), d = (len * 0.75).toFixed(1);
+    return "M0 0 C-" + a + " -" + c + " -" + b + " -" + d + " 0 -" + len + " C" + b + " -" + d + " " + a + " -" + c + " 0 0Z";
+  }
+
+  /* spec.leaves: {x, a (угол), len, d (задержка)}; spec.flowers: {type, bx, hx, hy, bend, sc, rot, d} */
+  function bouquet(spec) {
+    var C = FLOWER_COLORS, s = '<svg viewBox="0 -30 260 410" aria-hidden="true"><g class="sway">';
+    spec.leaves.forEach(function (l) {
+      s += '<g transform="translate(' + l.x + ' 380) rotate(' + l.a + ')" style="--d:' + l.d + 's"><g class="leaf">' +
+        '<path d="' + leafPath(l.len) + '" fill="' + C.leaf + '"/>' +
+        '<path d="M0 -4 L0 -' + (l.len * 0.8).toFixed(0) + '" stroke="' + C.rib + '" stroke-width="2" stroke-linecap="round"/></g></g>';
+    });
+    spec.flowers.forEach(function (f) {
+      var cx = (f.bx + f.hx) / 2 + f.bend, cy = 380 - (380 - f.hy) * 0.55;
+      var ang = Math.atan2(f.hx - cx, -(f.hy - cy)) * 180 / Math.PI + (f.rot || 0);
+      s += '<g style="--d:' + f.d + 's"><path class="stem" pathLength="1" d="M' + f.bx + ' 380 Q' + cx.toFixed(1) + ' ' + cy.toFixed(1) + ' ' + f.hx + ' ' + f.hy + '" fill="none" stroke="' + C.stem + '" stroke-width="5" stroke-linecap="round"/>' +
+        '<g transform="translate(' + f.hx + ' ' + f.hy + ') rotate(' + ang.toFixed(1) + ') scale(' + f.sc + ')"><g class="bloom ' + f.type + '">' + (f.type === "calla" ? drawCalla() : drawLily()) + '</g></g></g>';
+    });
+    return s + '</g></svg>';
+  }
+
+  var BOUQUET_LEFT = {
+    leaves: [ { x: 124, a: -36, len: 150, d: 0.1 }, { x: 134, a: 8, len: 175, d: 0.2 }, { x: 128, a: 42, len: 140, d: 0.3 } ],
+    flowers: [
+      { type: "calla", bx: 116, hx: 66,  hy: 190, bend: -12, sc: 0.9,  rot: -4, d: 0.2 },
+      { type: "calla", bx: 136, hx: 160, hy: 150, bend: 10,  sc: 0.95, rot: 6,  d: 0.5 },
+      { type: "lily",  bx: 126, hx: 206, hy: 256, bend: 6,   sc: 0.85, rot: 20, d: 0.8 },
+      { type: "lily",  bx: 122, hx: 62,  hy: 302, bend: -8,  sc: 0.75, rot: -15, d: 1.0 }
+    ]
+  };
+  var BOUQUET_RIGHT = {
+    leaves: [ { x: 136, a: 36, len: 150, d: 0.1 }, { x: 126, a: -8, len: 175, d: 0.25 }, { x: 132, a: -42, len: 140, d: 0.35 } ],
+    flowers: [
+      { type: "lily",  bx: 130, hx: 124, hy: 140, bend: 14,  sc: 1.0,  rot: 8,  d: 0.3 },
+      { type: "calla", bx: 140, hx: 198, hy: 214, bend: 12,  sc: 0.9,  rot: 4,  d: 0.6 },
+      { type: "calla", bx: 120, hx: 58,  hy: 236, bend: -12, sc: 0.85, rot: -4, d: 0.9 },
+      { type: "lily",  bx: 130, hx: 200, hy: 320, bend: 6,   sc: 0.7,  rot: 25, d: 1.1 }
+    ]
+  };
+
+  var flL = document.querySelector(".fl-l"), flR = document.querySelector(".fl-r");
+  flL.innerHTML = bouquet(BOUQUET_LEFT);
+  flR.innerHTML = bouquet(BOUQUET_RIGHT);
+  if ("IntersectionObserver" in window) {
+    var flowerIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("go"); flowerIO.unobserve(e.target); } });
+    }, { threshold: 0.3 });
+    flowerIO.observe(flL); flowerIO.observe(flR);
+  } else { flL.classList.add("go"); flR.classList.add("go"); }
 
   /* конфетти */
   var canvas = document.getElementById("confetti");
